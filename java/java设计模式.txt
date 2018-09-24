@@ -1,0 +1,582 @@
+创建型模式
+    一、单例模式
+        1.饿汉式
+            public class Singleton {
+                //在静态初始化器中创建单例实例，这段代码保证了线程安全
+                private static Singleton uniqueInstance = new Singleton();
+                //Singleton类只有一个构造方法并且是被private修饰的，所以用户无法通过new方法创建该对象实例
+                private Singleton(){}
+                public static Singleton getInstance(){
+                    return uniqueInstance;
+                }
+            }
+        2.懒汉式(非线程安全)
+            public class Singleton {  
+                private static Singleton uniqueInstance;  
+                private Singleton (){
+                }   
+                //没有加入synchronized关键字的版本是线程不安全的
+                public static Singleton getInstance() {
+                    //判断当前单例是否已经存在，若存在则返回，不存在则再建立单例
+                    if (uniqueInstance == null) {  
+                        uniqueInstance = new Singleton();  
+                    }  
+                    return uniqueInstance;  
+                }  
+            }
+
+        3.懒汉式（DCL 双重检查加锁）
+            public class Singleton {
+
+                //volatile保证，当uniqueInstance变量被初始化成Singleton实例时，多个线程可以正确处理uniqueInstance变量
+                private volatile static Singleton uniqueInstance;
+                private Singleton() {
+                }
+                public static Singleton getInstance() {
+                //检查实例，如果不存在，就进入同步代码块
+                    if (uniqueInstance == null) {
+                        //只有第一次才彻底执行这里的代码
+                        synchronized(Singleton.class) {
+                        //进入同步代码块后，再检查一次，如果仍是null，才创建实例
+                            if (uniqueInstance == null) {
+                                uniqueInstance = new Singleton();
+                            }
+                        }
+                    }
+                    return uniqueInstance;
+                }
+            }
+        4.懒汉式（静态内部类）
+            public class Singleton {  
+                private static class SingletonHolder {  
+                private static final Singleton INSTANCE = new Singleton();  
+                }  
+                private Singleton (){}  
+                public static final Singleton getInstance() {  
+                return SingletonHolder.INSTANCE;  
+                }  
+            }
+        5.饿汉式（枚举方式）><不太懂
+            public enum Singleton {
+                //定义一个枚举的元素，它就是 Singleton 的一个实例
+                INSTANCE;  
+
+                public void doSomeThing() {  
+                    System.out.println("枚举方法实现单例");
+                }  
+            }
+
+            使用
+            public class ESTest {
+
+                public static void main(String[] args) {
+                    Singleton singleton = Singleton.INSTANCE;
+                    singleton.doSomeThing();//output:枚举方法实现单例
+
+                }
+
+            }
+    二、工厂模式
+        作用：解耦对象的使用和创建、降低代码重复、降低维护成本
+        1.简单工厂模式
+            (1)创建Shape接口
+                public interface Shape {
+                    void draw();
+                }
+
+            (2)创建具体的Shape实现类
+                public class Circle implements Shape {
+                    public Circle() {
+                        System.out.println("Circle");
+                    }
+                    @Override
+                    public void draw() {
+                        System.out.println("Draw Circle");
+                    }
+                }
+
+                public class Rectangle implements Shape {
+                    public Rectangle() {
+                        System.out.println("Rectangle");
+                    }
+                    @Override
+                    public void draw() {
+                        System.out.println("Draw Rectangle");
+                    }
+                }
+
+                public class Square implements Shape {
+                    public Square() {
+                        System.out.println("Square");
+                    }
+
+                    @Override
+                    public void draw() {
+                        System.out.println("Draw Square");
+                    }
+                }
+            (3)创建工厂类 （问题：如果新增产品类的话，就需要修改工厂类中的getShape（）方法，不符合 开放-封闭原则）
+                public class ShapeFactory {
+
+                    // 使用 getShape 方法获取形状类型的对象
+                    public static Shape getShape(String shapeType) {
+                        if (shapeType == null) {
+                            return null;
+                        }
+                        if (shapeType.equalsIgnoreCase("CIRCLE")) {
+                            return new Circle();
+                        } else if (shapeType.equalsIgnoreCase("RECTANGLE")) {
+                            return new Rectangle();
+                        } else if (shapeType.equalsIgnoreCase("SQUARE")) {
+                            return new Square();
+                        }
+                        return null;
+                    }
+                }
+            （4）创建工厂类的完善（利用反射）
+                public class ShapeFactory2 {
+                    public static Object getClass(Class<? extends Shape> clazz) {
+                        Object obj = null;
+
+                        try {
+                            obj = Class.forName(clazz.getName()).newInstance();
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (InstantiationException e) {
+                            e.printStackTrace();
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+
+                        return obj;
+                    }
+                }
+        2.工厂方法模式
+            简单工厂模式的进一步深化，每个对象都有一个与之对应的工厂
+            组成：抽象工厂、具体工厂、抽象产品、具体产品
+            （1）新增工厂接口
+                public interface Factory {
+                    public Shape getShape();
+                }
+            （2）新增相关工厂类
+                public class CircleFactory implements Factory {
+
+                    @Override
+                    public Shape getShape() {
+                        // TODO Auto-generated method stub
+                        return new Circle();
+                    }
+
+                }
+
+                public class RectangleFactory implements Factory{
+
+                    @Override
+                    public Shape getShape() {
+                        // TODO Auto-generated method stub
+                        return new Rectangle();
+                    }
+
+                }
+
+                public class SquareFactory implements Factory{
+
+                    @Override
+                    public Shape getShape() {
+                        // TODO Auto-generated method stub
+                        return new Square();
+                    }
+
+                }
+        3.抽象工厂模式
+            工厂方法模式的进一步深化，可以创建一组相互关联的产品
+            （1）创建产品接口
+                public interface Gun {
+                    public void shooting();
+                }
+
+                public interface Bullet {
+                    public void load();
+                }
+            （2）创建产品实现类
+                public class AK implements Gun{
+
+                    @Override
+                    public void shooting() {
+                        System.out.println("shooting with AK");
+
+                    }
+
+                }
+                public class M4A1 implements Gun {
+
+                    @Override
+                    public void shooting() {
+                        System.out.println("shooting with M4A1");
+
+                    }
+
+                }
+
+                public class AK_Bullet implements Bullet {
+
+                    @Override
+                    public void load() {
+                        System.out.println("Load bullets with AK");
+                    }
+
+                }
+                public class M4A1_Bullet implements Bullet {
+
+                    @Override
+                    public void load() {
+                        System.out.println("Load bullets with M4A1");
+                    }
+
+                }
+            （3）创建工程接口
+                public interface Factory {
+                    public Gun produceGun();
+                    public Bullet produceBullet();
+                }
+            （4）创建工厂实现类
+                public class AK_Factory implements Factory{
+
+                    @Override
+                    public Gun produceGun() {
+                        return new AK();
+                    }
+
+                    @Override
+                    public Bullet produceBullet() {
+                        return new AK_Bullet();
+                    }
+
+                }
+
+                public class M4A1_Factory implements Factory{
+
+                    @Override
+                    public Gun produceGun() {
+                        return new M4A1();
+                    }
+
+                    @Override
+                    public Bullet produceBullet() {
+                        return new M4A1_Bullet();
+                    }
+
+                }
+    三、建造者模式
+        组成：产品Product、抽象建造者Builder、具体建造者ConcreteBuilder、指挥者Director
+        实例：KFC套餐
+        1.产品
+            public class Meal {
+                private String food;
+                private String drink;
+
+                public String getFood() {
+                    return food;
+                }
+
+                public void setFood(String food) {
+                    this.food = food;
+                }
+
+                public String getDrink() {
+                    return drink;
+                }
+
+                public void setDrink(String drink) {
+                    this.drink = drink;
+                }
+            }
+        2.抽象建造者
+            public abstract class MealBuilder {
+                Meal meal = new Meal();
+
+                public abstract void buildFood();
+
+                public abstract void buildDrink();
+
+                public Meal getMeal(){
+                    return meal;
+                }
+            }
+        3.具体建造者
+            public class MealA extends MealBuilder{
+
+                public void buildDrink() {
+                    meal.setDrink("可乐");
+                }
+
+                public void buildFood() {
+                    meal.setFood("薯条");
+                }
+
+            }
+
+            public class MealB extends MealBuilder{
+
+                public void buildDrink() {
+                    meal.setDrink("柠檬果汁");
+                }
+
+                public void buildFood() {
+                    meal.setFood("鸡翅");
+                }
+
+            }
+        4.指挥者
+            public class KFCWaiter {
+                private MealBuilder mealBuilder;
+
+                public KFCWaiter(MealBuilder mealBuilder) {
+                    this.mealBuilder = mealBuilder;
+                }
+
+
+                public Meal construct(){
+                    //准备食物
+                    mealBuilder.buildFood();
+                    //准备饮料
+                    mealBuilder.buildDrink();
+
+                    //准备完毕，返回一个完整的套餐给客户
+                    return mealBuilder.getMeal();
+                }
+            }
+        测试类
+            public class Test {
+                public static void main(String[] args) {
+
+                    //套餐A
+                    MealA a = new MealA();
+                    //准备套餐A的服务员
+                    KFCWaiter waiter = new KFCWaiter(a);
+                    //获得套餐
+                    Meal mealA = waiter.construct();      
+                    System.out.print("套餐A的组成部分:");
+                    System.out.println("食物："+mealA.getFood()+"；   "+"饮品："+mealA.getDrink());
+                }
+            }
+    四、原型模式
+        适用场景：对象种类繁多，无法将他们整合到一个类的时候；难以根据类生成实例时；想解耦框架与生成的实例时
+        组成：抽象原型类，具体原型类，客户类/使用者
+        1.产品接口（原型）
+            public interface Product extends Cloneable{
+            //use方法是用于“使用”的方法，具体怎么“使用”，则被交给子类去实现。
+                public abstract void use(String s);
+                //creatClone方法是用于复制实例的方法
+                public abstract Product creatClone();
+
+            }
+        2.管理类（客户）
+            public class Manager {
+                //保存实例的“名字”和“实例”之间的对应关系
+                private HashMap<String, Product> showcase=new HashMap<String, Product>();
+                //register方法将接收到的一组“名字”和“Product接口”注册到showcase中。这里Product是实现Product接口的实例，具体还未确定
+                public void register(String name ,Product product){
+                    showcase.put(name, product);
+                }
+                public Product create(String productname){
+                    Product p=showcase.get(productname);
+                    return p.creatClone();
+                }
+
+            }
+        3.MessageBox，UnderlinePen类（原型实现类）
+            public class MessageBox implements Product {
+                //保存的是装饰方框使用的字符样式
+                private char decochar;
+
+                public MessageBox(char decochar) {
+                    this.decochar = decochar;
+                }
+
+                @Override
+                public void use(String s) {
+                int length=s.getBytes().length;
+                for (int i = 0; i < length+4; i++) {
+                        System.out.print(decochar); 
+                }
+                System.out.println("");
+                System.out.println(decochar+" "+s+" "+decochar);
+                for (int i = 0; i < length+4; i++) {
+                    System.out.print(decochar);
+                }
+                System.out.println("");
+                }
+
+                //该方法用于复制自己
+                @Override
+                public Product creatClone() {
+                    Product p=null;
+                    try {
+                        p=(Product) clone();
+                    } catch (CloneNotSupportedException e) {
+                        e.printStackTrace();
+                    }
+                    return p;
+                }
+
+            }
+
+            public class UnderlinePen implements Product {
+
+                private char ulchar;
+
+                public UnderlinePen(char ulchar) {
+                    this.ulchar = ulchar;
+                }
+
+                @Override
+                public void use(String s) {
+                    int length = s.getBytes().length;
+                    System.out.println("\""+s+"\"");
+                    for (int i = 0; i <length+2; i++) {
+                        System.out.print(ulchar);
+
+                    }
+                    System.out.println("");
+                }
+
+                @Override
+                public Product creatClone() {
+                    Product p=null;
+                    try {
+                        p=(Product) clone();
+                    } catch (CloneNotSupportedException e) {
+                        e.printStackTrace();
+                    }
+                    return p;
+                }
+
+            }
+        4.测试类
+            public class Main {
+
+                public static void main(String[] args) {
+                    Manager manager = new Manager();
+                    UnderlinePen underlinePen=new UnderlinePen('~');
+                    MessageBox mbox=new MessageBox('*');
+                    MessageBox sbox=new MessageBox('/');
+                    manager.register("Strong message", underlinePen);
+                    manager.register("Waring Box", mbox);
+                    manager.register("Slash Box", sbox);
+                    Product p1=manager.create("Strong message");
+                    p1.use("hello world");
+                    Product p2=manager.create("Waring Box");
+                    p2.use("hello world");
+                    Product p3=manager.create("Slash Box");
+                    p3.use("hello world");
+                }
+
+            }
+结构型模式
+    五、适配器模式
+        适配者继承被适配对象并实现目标接口
+        （1）类适配器
+            被适配对象
+            class M4DataLine {
+                public void connection() {
+                    System.out.println("使用小米4数据线连接...");
+                }
+            }
+
+            目标接口
+            interface Target {
+                void connection();
+            }
+
+            class M5DataLine implements Target {
+                @Override
+                public void connection() {
+                    System.out.println("使用小米5数据线连接...");
+                }
+            }
+
+            适配类
+            class M5DataLineAdapter extends M4DataLine implements Target {
+
+                @Override
+                public void connection() {
+                    System.out.println("插入 type-c 转接头");
+                    super.connection();
+                }
+            }
+
+            测试类
+            public class AdapterMain {
+
+                public static void main(String[] args) {
+                    Target target = new M5DataLine();
+                    target.connection();
+
+                    Target adapter = new M5DataLineAdapter();
+                    adapter.connection();
+                }
+            }
+        （2）对象适配器  （包含被适配对象实现目标接口）
+            适配类
+            class M5DataLineAdapter implements Target {
+
+                private Target target;
+
+                public M5DataLineAdapter(Target target) {
+                    this.target = target;
+                }
+
+                @Override
+                public void connection() {
+                    System.out.println("插入 type-c 转接头");
+                    target.connection();
+                }
+            }
+
+            测试类
+            public class AdapterMain {
+
+                public static void main(String[] args) {
+                    // 使用特殊功能类，即适配类
+                    Target adapter = new M5DataLineAdapter(new M5DataLine());
+                    adapter.connection();
+                }
+            }
+    六、桥接模式
+        组成：抽象化(Abstraction)角色、修正抽象化(Refined Abstraction)角色、实现化(Implementor)角色、具体实现化(Concrete Implementor)角色
+        在一个抽象类中包含另一个接口的实例
+        public interface Implementor
+        {
+            public void operationImpl();
+        }
+        
+        public class ConcreteImplementor implements Implementor
+        {
+            public void operationImpl()
+            {
+                //具体实现
+            }
+        }
+        
+        public abstract class Abstraction
+        {
+            protected Implementor impl;
+            
+            public void setImpl(Implementor impl)
+            {
+                this.impl=impl;
+            }
+            
+            public abstract void operation();
+        }
+        
+        public class RefinedAbstraction extends Abstraction
+        {
+            public void operation()
+            {
+                //代码
+                impl.operationImpl();
+                //代码
+            }
+        }
