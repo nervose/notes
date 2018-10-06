@@ -1,0 +1,20 @@
+﻿helm相关
+客户端安装，下载二进制文件helm
+服务端安装：helm init --upgrade -i registry.cn-hangzhou.aliyuncs.com/google_containers/tiller:v2.10.0 --stable-repo-url https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts
+
+安装chartmusem
+helm install -f custom.yaml --name my-chartmuseum .  （开放访问权限，设置认证）
+
+添加仓库helm repo add codepipeline-chartmuseum http://192.168.1.21:30000 --username admin --password 123456
+
+上传charts：（传完之后记得要 helm repo update）
+1.通过curl  curl --data-binary "@chartmuseum-1.6.0.tgz" http://192.168.1.21:30000/api/charts -u admin:123456
+2.通过helm push  helm push codepipeline-helm-java-demo-0.1.0.tgz my-repo
+
+
+
+
+
+Error: configmaps is forbidden: User "system:serviceaccount:kube-system:default" cannot list configmaps in the namespace "kube-system"
+解决：https://github.com/helm/helm/issues/2687
+kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:default

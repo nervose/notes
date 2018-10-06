@@ -580,3 +580,371 @@
                 //代码
             }
         }
+    七、组合模式
+        将对象组合成树形结构以表示”部分-整体”的层次结构。组合模式使得用户对单个对象和组合对象的使用具有一致性。
+        import java.util.ArrayList;
+        import java.util.List;
+
+        public class Employee {
+
+            private String name;
+            private String dept;
+            private int salary;
+            private List<Employee> subordinates;//部下
+
+            //constructor
+            public Employee(String name, String dept, int salary,
+                    List<Employee> subordinates) {
+                super();
+                this.name = name;
+                this.dept = dept;
+                this.salary = salary;
+                this.subordinates = subordinates;
+                subordinates = new ArrayList<Employee>();
+            }
+
+
+            public Employee(String name, String dept, int salary) {
+                super();
+                this.name = name;
+                this.dept = dept;
+                this.salary = salary;
+                subordinates = new ArrayList<Employee>();
+            }
+
+
+            public void add(Employee e){
+                subordinates.add(e);
+            }
+
+            public void remove(Employee e){
+                subordinates.remove(e);
+            }
+
+            public List<Employee> getSubordinates(){
+                return subordinates;
+            }
+
+            public String toString(){
+                return "Employee :[ Name : " + name 
+                + ", dept : " + dept + ", salary :"
+                + salary + " ]";
+            } 
+        }
+    八、装饰模式（又名包装(Wrapper)模式）
+        组成：Component（被装饰对象的基类）、ConcreteComponent（具体被装饰对象）、Decorator（装饰者抽象类）、ConcreteDecorator（具体装饰者）
+        // 抽象接口，用来规范将要被附加一些操作的对象
+        interface People{
+            public void wear();
+        }
+
+        // 具体的对象，该对象将被附加一些额外的操作
+        class Jane implements People{
+            public void wear() {
+                System.out.println("今天该穿什么呢?");
+            }
+        }
+
+        // 装饰者类，持有一个将要被装饰的接口对象的实例
+        class Decorator implements People{
+
+            private People people;
+
+            public Decorator(People people) {
+                this.people = people;
+            }
+            public void wear() {
+                people.wear();
+            }
+        }
+
+        // 具体的装饰者类，负责给增加附加的操作：穿衬衫
+        class DecoratorShirt extends Decorator{
+
+            public DecoratorShirt(People people) {
+                super(people);
+            }
+
+            public void wear() {
+                super.wear();
+                System.out.println("穿个衬衫");
+            }
+        }
+
+        // 具体的装饰者类，负责给增加附加的操作：穿西服
+        class DecoratorSuit extends Decorator{
+
+            public DecoratorSuit(People people) {
+                super(people);
+            }
+
+            public void wear() {
+                super.wear();
+                System.out.println("穿个西服");
+            }
+        }
+
+        // 具体的装饰者类，负责给增加附加的操作：穿T-Shirt
+        class DecoratorTShirt extends Decorator{
+
+            public DecoratorTShirt(People people) {
+                super(people);
+            }
+
+            public void wear() {
+                super.wear();
+                System.out.println("穿个T-Shirt");
+            }
+        }
+
+        // 具体的装饰者类，负责给增加附加的操作：穿裤子
+        class DecoratorPants extends Decorator{
+
+            public DecoratorPants(People people) {
+                super(people);
+            }
+
+            public void wear() {
+                super.wear();
+                System.out.println("穿裤子");
+            }
+        }
+
+        // 具体的装饰者类，负责给增加附加的操作：穿鞋子
+        class DecoratorShoes extends Decorator{
+
+            public DecoratorShoes(People people) {
+                super(people);
+            }
+
+            public void wear() {
+                super.wear();
+                System.out.println("鞋子");
+            }
+        }
+
+        public class DecoratorTest {
+
+            public static void main(String[] args) {
+                People p1 = new DecoratorSuit(new DecoratorShirt(new Jane()));
+                p1.wear();
+                System.out.println("--------------");
+                People p2 = new DecoratorTShirt(new DecoratorPants(new Jane()));
+                p2.wear();
+                System.out.println("--------------");
+                People p3 = new DecoratorTShirt(new DecoratorPants(new DecoratorShoes(new Jane())));
+                p3.wear();
+                System.out.println("--------------");
+                People p4 = new DecoratorShoes(new DecoratorPants(new DecoratorTShirt(new Jane())));
+                p4.wear();
+            }
+        }
+    九、外观模式（门面模式）
+        组成：门面角色、子系统角色、客户角色
+        子系统类
+            public class CPU{
+                public static final Logger LOGGER = Logger.getLogger(CPU.class);
+                public void start(){
+                    LOGGER.info("cpu is start...");
+                }
+                public void shutDown(){
+                    LOGGER.info("CPU is shutDown...");
+                }
+            }
+            public class Disk{
+                public static final Logger LOGGER = Logger.getLogger(Disk.class);
+                public void start(){
+                    LOGGER.info("Disk is start...");
+                }
+                public void shutDown(){
+                    LOGGER.info("Disk is shutDown...");
+                }
+            }
+            public class Memory{
+                public static final Logger LOGGER = Logger.getLogger(Memory.class);
+                public void start(){
+                    LOGGER.info("Memory is start...");
+                }
+                public void shutDown(){
+                    LOGGER.info("Memory is shutDown...");
+                }
+            }
+        门面类
+            public class Computer{
+                public static final Logger LOGGER = Logger.getLogger(Computer.class);
+                private CPU cpu;
+                private Memory memory;
+                private Disk disk;
+                public Computer(){
+                    cpu = new CPU();
+                    memory = new Memory();
+                    disk = new Disk();
+                }
+                public void start(){
+                    LOGGER.info("Computer start begin");
+                    cpu.start();
+                    disk.start();
+                    memory.start();
+                    LOGGER.info("Computer start end");
+                }
+                public void shutDown(){
+                    LOGGER.info("Computer shutDown begin");
+                    cpu.shutDown();
+                    disk.shutDown();
+                    memory.shutDown();
+                    LOGGER.info("Computer shutDown end...");
+                }
+            }
+        客户端类
+            public class Cilent {
+                public static final Logger LOGGER = Logger.getLogger(Cilent.class);
+                public static void main(String[] args) {
+                    Computer computer = new Computer();
+                    computer.start();
+                    LOGGER.info("=================");
+                    computer.shutDown();
+                }
+
+            }
+    十、享元模式
+        组成：FlyWeight 享元接口或者（抽象享元类）、ConcreteFlyWeight 具体享元类、UnSharedConcreteFlyWeight 非共享享元实现类、FlyWeightFactory 享元工厂类
+        享元接口
+            public interface FlyWeight {
+                void action(String externalState);
+            }
+        具体享元类
+            public class ConcreteFlyWeight implements FlyWeight {
+                private static final Logger LOG = LoggerFactory.getLogger(ConcreteFlyWeight.class);
+                private String name;
+                public ConcreteFlyWeight(String name) {
+                    this.name = name;
+                }
+                @Override
+                public void action(String externalState) {
+                    LOG.info("name = {}, outerState = {}", this.name, externalState);
+                }
+            }
+        享元工厂
+            public class FlyWeightFactory {
+                private static final Logger LOG = LoggerFactory.getLogger(FlyWeightFactory.class);
+                private static ConcurrentHashMap<String, FlyWeight> allFlyWeight = new ConcurrentHashMap<String, FlyWeight>();
+                public static FlyWeight getFlyWeight(String name) {
+                    if (allFlyWeight.get(name) == null) {
+                    synchronized (allFlyWeight) {
+                        if (allFlyWeight.get(name) == null) {
+                        LOG.info("Instance of name = {} does not exist, creating it");
+                        FlyWeight flyWeight = new ConcreteFlyWeight(name);
+                        LOG.info("Instance of name = {} created");
+                        allFlyWeight.put(name, flyWeight);
+                        }
+                    }
+                    }
+                    return allFlyWeight.get(name);
+                }
+            }
+    十一、代理模式
+        组成：主题接口、真实主题、代理类、客户端（Main）
+        （1）延迟加载代理
+            public interface IDBQuery {
+                String request();
+            }
+            public class DBQuery implements IDBQuery{
+                public DBQuery(){
+                try{
+                    Thread.sleep(1000);//假设数据库连接等耗时操作
+                    }catch(InterruptedException ex){
+                        ex.printStackTrace();
+                    }
+                }
+                @Override
+                public String request() {
+                // TODO Auto-generated method stub
+                return "request string";
+                }
+            }
+            public class DBQueryProxy implements IDBQuery{
+                private DBQuery real = null;
+                @Override
+                public String request() {
+                    // TODO Auto-generated method stub
+                    //在真正需要的时候才能创建真实对象，创建过程可能很慢
+                    if(real==null){
+                    real = new DBQuery();
+                    }//在多线程环境下，这里返回一个虚假类，类似于 Future 模式
+                    return real.request();
+                }
+            
+            }
+            public class Main {
+                public static void main(String[] args){
+                IDBQuery q = new DBQueryProxy(); //使用代里
+                q.request(); //在真正使用时才创建真实对象
+                }
+            }
+        （2）动态代理（JDK自带的、CGLIB（底层ASM）=>父子&兄弟）
+            public class DBQueryHandler implements InvocationHandler{
+                IDBQuery realQuery = null;//定义主题接口
+                @Override
+                public Object invoke(Object proxy, Method method, Object[] args)
+                throws Throwable {
+                    // TODO Auto-generated method stub
+                    //如果第一次调用，生成真实主题
+                    if(realQuery == null){
+                    realQuery = new DBQuery();
+                    }
+                    //返回真实主题完成实际的操作
+                    return realQuery.request();
+                }
+                public static IDBQuery createProxy(){
+                    IDBQuery proxy = (IDBQuery)Proxy.newProxyInstance(
+                    ClassLoader.getSystemClassLoader(), new Class[]{IDBQuery.class}, new DBQueryHandler()
+                    );
+                    return proxy;
+                }
+            }
+
+
+            public interface BookProxy {
+                public void addBook();
+            }
+            //该类并没有申明 BookProxy 接口
+            public class BookProxyImpl {
+                public void addBook() { 
+                    System.out.println("增加图书的普通方法..."); 
+                } 
+            }
+            public class BookProxyLib implements MethodInterceptor {
+                private Object target; 
+                /** 
+                * 创建代理对象 
+                * 
+                * @param target 
+                * @return 
+                */ 
+                public Object getInstance(Object target) { 
+                    this.target = target; 
+                    Enhancer enhancer = new Enhancer(); 
+                    enhancer.setSuperclass(this.target.getClass()); 
+                    // 回调方法 
+                    enhancer.setCallback(this); 
+                    // 创建代理对象 
+                    return enhancer.create(); 
+                } 
+                
+                @Override 
+                // 回调方法 
+                public Object intercept(Object obj, Method method, Object[] args, 
+                MethodProxy proxy) throws Throwable { 
+                    System.out.println("事物开始"); 
+                    proxy.invokeSuper(obj, args); 
+                    System.out.println("事物结束"); 
+                    return null; 
+                } 
+            }
+            public class TestCglib { 
+                public static void main(String[] args) { 
+                    BookProxyLib cglib=new BookProxyLib(); 
+                    BookProxyImpl bookCglib=(BookProxyImpl)cglib.getInstance(new BookProxyImpl()); 
+                    bookCglib.addBook(); 
+                } 
+            }

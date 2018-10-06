@@ -1,0 +1,25 @@
+pipeline {
+    agent {
+        kubernetes {
+            label 'test-pod'
+            defaultContainer 'test'
+        }
+    }
+    options {
+        skipDefaultCheckout()
+    }
+    stages {
+        stage('test') {
+            steps{
+                sh "kubectl version"
+                sh "helm version"
+                sh "kubectl config current-context"
+                sh "helm init --client-only --stable-repo-url https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts"
+                sh "helm repo add my-repo http://192.168.1.21:30000 --username admin --password 123456"
+                sh "helm search my-repo"
+                sh "helm install --name=testhelm --set service.type=NodePort --set service.nodePort=31000 my-repo/chartmuseum"
+                //sh "helm delete --purge testhelm"
+            }
+        }
+    }
+}

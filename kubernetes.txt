@@ -1,9 +1,0 @@
-一、容器基础
-    1.容器的原理
-        利用命名空间实现逻辑隔离NAMESPACE（PIDMount、UTS、IPC、Network、User）
-        利用Cgroups限制(CPU、内存、磁盘、网络带宽等)资源（/sys/fs/cgroup） （在./资源类型(cpu,memory..)目录下通过mkdir创建控制组）
-        pivot_root,chroot切换进程的根目录,联合挂载（一层层叠加）实现联合文件系统
-        
-        docker exec原理，创建一个和容器共享namespace的新进程
-    缺陷：
-        隔离的不够彻底（例如修改系统时间settimeofday(2)）,(/proc文件)

@@ -1,0 +1,47 @@
+1.在镜像中安装kubectl,helm client （通过集群启动的pods可以直接通过default service account直接连接该集群）
+2.创建service Account
+
+2.1添加权限ClusterRole ClusterRoleBinding
+3.查看Service Account 对应的secrets，得到server证书和 token信息；
+
+4.新建配置文件
+    apiVersion: v1
+    kind: Config
+    clusters:
+    - cluster:
+        certificate-authority-data: {ca data}
+        server: https://{server}
+    name: awesome-cluster
+    users:
+    - user:
+        token: {token}
+    name: account
+    - context:
+        cluster: awesome-cluster
+        user: account
+    name: sa
+    current-context: sa
+
+5.填入相关信息（注：token需要通过base64 -d解码）
+6.写入环境变量（如KUBECONFIG=/root/.kube/config:/root/.kube/config2:/root/.kube/configac）
+7.在configmap中加入上述配置（ kubectl create configmap test-configmap --from-file=./configac 注意当前连接的是哪个集群）
+
+
+
+
+查看集群信息:kubectl config view
+查看当前默认集群:kubectl config current-context
+修改当前默认集群:kubectl config use-context kubernetes-admin@kubernetes
+
+
+
+参考：
+https://www.kubernetes.org.cn/1991.html
+https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+http://wiselyman.iteye.com/blog/2412331
+
+
+
+疑问：
+授权里的APIGroup属性是干什么的
+让自己创建的sa使用helm需要配置怎么样的权限

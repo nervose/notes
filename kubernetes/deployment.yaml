@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubectl-deployment
+  labels:
+    app: kubectl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubectl
+  template:
+    metadata:
+      labels:
+        app: kubectl
+    spec:
+      containers:
+      - name: kubectl
+        image: testkube:1.0
+        command:
+        - cat
+        tty: true
+        env:
+        - name: KUBECONFIG
+          value: /root/.kube/configac
+        volumeMounts:
+        - name: config-volume
+          mountPath: /root/.kube
+#        ports:
+#        - containerPort: 80
+      volumes:
+      - name: config-volume
+        configMap:
+          # Provide the name of the ConfigMap containing the files you want
+          # to add to the container
+          name: test-configmap

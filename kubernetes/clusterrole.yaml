@@ -1,0 +1,12 @@
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  # "namespace" omitted since ClusterRoles are not namespaced
+  name: test-clusterrole
+rules:
+- apiGroups: [""]
+  resources: ["secrets", "configmaps", "services", "endpoints", "pods", "deployments", "nodes"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["extensions"]
+  resources: ["deployments"]
+  verbs: ["get","list","patch","update"]

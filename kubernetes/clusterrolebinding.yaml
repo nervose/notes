@@ -1,0 +1,13 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: test-clusterrolebinding
+subjects:
+- kind: ServiceAccount
+  name: testsa # Name is case sensitive
+  namespace: "default"
+  apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: test-clusterrole
+  apiGroup: ""
