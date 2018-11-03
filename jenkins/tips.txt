@@ -1,0 +1,1 @@
+kubectl create secret generic dockerconfig --from-file=/root/.docker/config.json

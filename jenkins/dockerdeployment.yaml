@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dockercli-deployment
+  labels:
+    app: dockercli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dockercli
+  template:
+    metadata:
+      labels:
+        app: dockercli
+    spec:
+      containers:
+        - name: "docker"
+          command:
+            - sh
+            - -c
+            - cat
+          image: "docker"
+          tty: true
+          volumeMounts:
+            - name: docker-socket
+              mountPath: /var/run/docker.sock
+            - name: nec-docker-config
+              mountPath: /root/.docker/config.json
+              subPath: config.json
+              # mountPath: /root/.docker/config.json
+              # subPath: path/to/config.json
+      volumes:
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+        - name: nec-docker-config
+          secret: 
+            secretName: dockerconfig 
+            # items: 
+            # - key: config.json
+            #   path: path/to/config.json
+      restartPolicy: Always
+#1.9.4的版本使用subPath存在BUG
