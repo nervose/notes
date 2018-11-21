@@ -1,5 +1,6 @@
-环境变量设置
-export FLYWAY_URL=jdbc:mysql://192.168.1.4:3306/test?serverTimezone=GMT%2B8
+﻿环境变量设置
+#export FLYWAY_URL=jdbc:mysql://192.168.1.4:3306/test?serverTimezone=GMT%2B8
+export FLYWAY_URL=jdbc:mysql://192.168.99.1:3306/learnflyway?serverTimezone=GMT%2B8
 export FLYWAY_USER=root
 export FLYWAY_PASSWORD=123456
-export FLYWAY_TABLE = external_flyway_schema_history
+export FLYWAY_TABLE=external_flyway_schema_history
